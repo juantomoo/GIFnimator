@@ -2,8 +2,9 @@ const fs = require("fs");
 const { createCanvas } = require("canvas");
 const GIFEncoder = require("gif-encoder-2");
 const { GifReader } = require("omggif");
+const path = require("path");
 
-function processGIF(fileName, scaleFactor, applyStyle = null) {
+function processGIF(fileName, escalaObj, applyStyle = null, elecciones = []) {
     try {
         const buffer = fs.readFileSync(fileName);
         const gif = new GifReader(buffer);
@@ -11,8 +12,8 @@ function processGIF(fileName, scaleFactor, applyStyle = null) {
         const width = gif.width;
         const height = gif.height;
         const numFrames = gif.numFrames();
-        const newWidth = Math.max(1, Math.floor(width * scaleFactor));
-        const newHeight = Math.max(1, Math.floor(height * scaleFactor));
+        const newWidth = Math.max(1, Math.floor(width * escalaObj.factor));
+        const newHeight = Math.max(1, Math.floor(height * escalaObj.factor));
 
         console.log(`📏 Dimensiones: ${width}x${height} -> ${newWidth}x${newHeight}`);
 
@@ -70,16 +71,18 @@ function processGIF(fileName, scaleFactor, applyStyle = null) {
 
         encoder.finish();
 
-        const outputFileName = "output.gif";
-        fs.writeFileSync(outputFileName, encoder.out.getData());
+        // Construir el nombre de salida siguiendo el formato:
+        // NombreOriginal-Eleccion1-Eleccion2-...-EleccionN.gif
+        const baseName = path.parse(fileName).name;
+        const outputFileName = `${baseName}-${elecciones.join("-")}.gif`;
 
+        fs.writeFileSync(outputFileName, encoder.out.getData());
         console.log(`✅ GIF generado exitosamente: ${outputFileName}`);
     } catch (error) {
         console.error("❌ Error al procesar el GIF:", error);
     }
 }
 
-// 🔹 Añadir `preguntarEscalado`
 function preguntarEscalado() {
     const readlineSync = require("readline-sync");
 
@@ -89,10 +92,15 @@ function preguntarEscalado() {
     console.log("3. 25% (Aún más pixelado)");
     console.log("4. 12.5% (Extremadamente pixelado)");
 
-    const opciones = [1, 0.5, 0.25, 0.125];
+    // Cada opción retorna un objeto con factor y etiqueta
+    const opciones = [
+        { factor: 1, label: "100" },
+        { factor: 0.5, label: "50" },
+        { factor: 0.25, label: "25" },
+        { factor: 0.125, label: "12.5" }
+    ];
     const seleccion = readlineSync.questionInt("Seleccione una opción (1-4): ");
-    return opciones[seleccion - 1] || 1;
+    return opciones[seleccion - 1] || opciones[0];
 }
 
-// 🔹 Exportar ambas funciones
 module.exports = { processGIF, preguntarEscalado };
