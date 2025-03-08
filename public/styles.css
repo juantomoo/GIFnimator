@@ -1,0 +1,139 @@
+/* ----------------------------------------------------------
+   VARIABLES GLOBALES - ESTILO MODERNO
+----------------------------------------------------------- */
+:root {
+    --bg-color: #0a0c1f;
+    --accent-color: #ff80d5;
+    --accent-color-2: #80ffe8;
+    --text-color: #ffffff;
+    --control-bg: #1a1a2f;
+    --control-hover: #2d2d4f;
+    --border-radius: 8px;
+    --transition-speed: 0.3s;
+    --font-family: 'Poppins', sans-serif;
+  }
+  
+  /* ----------------------------------------------------------
+     RESETEO Y CONFIGURACIÓN GENERAL
+  ----------------------------------------------------------- */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-family), sans-serif;
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* ----------------------------------------------------------
+     CONTENEDOR PRINCIPAL EN DOS COLUMNAS
+  ----------------------------------------------------------- */
+  .main-container {
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    max-width: 900px;
+    background: var(--control-bg);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  }
+  
+  /* ----------------------------------------------------------
+     COLUMNA IZQUIERDA - SUBIDA Y VISTA ORIGINAL
+  ----------------------------------------------------------- */
+  .left-column {
+    flex: 1;
+    padding: 15px;
+    border-right: 2px solid var(--accent-color);
+    text-align: center;
+  }
+  
+  .upload-section {
+    margin-bottom: 15px;
+  }
+  
+  #gifPreview {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--border-radius);
+    margin-top: 15px;
+    display: none;
+  }
+  
+  /* ----------------------------------------------------------
+     COLUMNA DERECHA - OPCIONES Y VISTA PREVIA
+  ----------------------------------------------------------- */
+  .right-column {
+    flex: 1;
+    padding: 15px;
+    text-align: center;
+  }
+  
+  #advancedPreview {
+    max-width: 100%;
+    border-radius: var(--border-radius);
+    margin-top: 15px;
+    display: none;
+  }
+  
+  select, input {
+    width: 90%;
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: var(--border-radius);
+    border: none;
+    background: var(--control-hover);
+    color: var(--text-color);
+  }
+  
+  /* ----------------------------------------------------------
+     BOTÓN DE PROCESO AL CENTRO
+  ----------------------------------------------------------- */
+  .button-container {
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  button {
+    background: var(--accent-color);
+    color: black;
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: bold;
+    transition: background var(--transition-speed);
+  }
+  
+  button:hover {
+    background: var(--accent-color-2);
+  }
+  
+  /* ----------------------------------------------------------
+     RESPONSIVE
+  ----------------------------------------------------------- */
+  @media (max-width: 700px) {
+    .main-container {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .left-column, .right-column {
+      width: 100%;
+      border-right: none;
+      border-bottom: 2px solid var(--accent-color);
+      padding-bottom: 15px;
+    }
+  }
+  

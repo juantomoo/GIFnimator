@@ -1,4 +1,3 @@
-// rescaler.js
 const fs = require("fs");
 const { createCanvas } = require("canvas");
 const GIFEncoder = require("gif-encoder-2");
@@ -83,6 +82,7 @@ function processGIF(fileName, escalaObj, applyStyle = null, elecciones = []) {
     }
 }
 
+// Función antigua para preguntar por escalado en CLI (se conserva por compatibilidad)
 function preguntarEscalado() {
     const readlineSync = require("readline-sync");
 
@@ -102,4 +102,29 @@ function preguntarEscalado() {
     return opciones[seleccion - 1] || opciones[0];
 }
 
-module.exports = { processGIF, preguntarEscalado };
+// Configuración de la pregunta para este módulo (para el registry)
+const preguntasRescaler = {
+    id: "escala",
+    cli: {
+        question: "\n🔍 Opciones de escalado:",
+        options: [
+            { option: "100% (Sin cambios)", value: { factor: 1, label: "100" } },
+            { option: "50% (Más pixelado)", value: { factor: 0.5, label: "50" } },
+            { option: "25% (Aún más pixelado)", value: { factor: 0.25, label: "25" } },
+            { option: "12.5% (Extremadamente pixelado)", value: { factor: 0.125, label: "12.5" } }
+        ]
+    },
+    web: {
+        id: "escala",
+        label: "Escala (%)",
+        type: "select",
+        options: [
+            { label: "100%", value: 100 },
+            { label: "50%", value: 50 },
+            { label: "25%", value: 25 },
+            { label: "12.5%", value: 12.5 }
+        ]
+    }
+};
+
+module.exports = { processGIF, preguntarEscalado, preguntasRescaler };

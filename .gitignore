@@ -1,1 +1,17 @@
+# Node modules
+node_modules/
+
+# Carpetas de uploads temporales
+uploads/
+
+# Archivos de log
+*.log
+
+# Archivos de gif
 *.gif
+
+# Archivos del sistema
+.DS_Store
+
+# Variables de entorno (si se usan)
+.env

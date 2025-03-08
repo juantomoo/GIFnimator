@@ -2,8 +2,11 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GIFnimator Web</title>
+    <link rel="stylesheet" href="styles.css">
     <script>
+        // Función para subir el GIF
         function uploadGIF(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -18,23 +21,13 @@
                         alert("Error al analizar el GIF: " + data.error);
                         return;
                     }
-
-                    // Guardar la ruta temporal del archivo en el campo oculto
                     document.getElementById("gifFilePath").value = data.filePath;
-
-                    // Mostrar propiedades del GIF
                     document.getElementById("gifName").innerText = data.name;
                     document.getElementById("gifSize").innerText = `${data.width} x ${data.height}`;
                     document.getElementById("gifFrames").innerText = data.frames;
                     document.getElementById("gifWeight").innerText = data.sizeKB + " KB";
-                    document.getElementById("gifColors").innerText = data.colors;
-                    document.getElementById("gifDuration").innerText = data.duration + " ms";
-
-                    // Mostrar vista previa
                     document.getElementById("gifPreview").src = data.preview;
                     document.getElementById("gifPreview").style.display = "block";
-
-                    // Activar el formulario de opciones
                     document.getElementById("gifInfo").style.display = "block";
                     document.getElementById("gifForm").style.display = "block";
                 })
@@ -43,64 +36,122 @@
                     alert("Error al procesar el archivo. Inténtalo de nuevo.");
                 });
         }
+
+        // Función para cargar dinámicamente las preguntas desde el servidor
+        function loadQuestions() {
+            fetch("/questions")
+                .then(response => response.json())
+                .then(questions => {
+                    const container = document.getElementById("dynamicQuestions");
+                    container.innerHTML = "";
+                    questions.forEach(q => {
+                        let inputElem;
+                        if (q.type === "select") {
+                            inputElem = document.createElement("select");
+                            inputElem.name = q.id;
+                            inputElem.id = q.id;
+                            q.options.forEach(opt => {
+                                const optionElem = document.createElement("option");
+                                optionElem.value = opt.value;
+                                optionElem.text = opt.label;
+                                inputElem.appendChild(optionElem);
+                            });
+                        } else if (q.type === "number") {
+                            inputElem = document.createElement("input");
+                            inputElem.type = "number";
+                            inputElem.name = q.id;
+                            inputElem.id = q.id;
+                            if (q.min) inputElem.min = q.min;
+                            if (q.default) inputElem.value = q.default;
+                        }
+                        if (inputElem) {
+                            const labelElem = document.createElement("label");
+                            labelElem.innerText = q.label + ":";
+                            labelElem.htmlFor = inputElem.id;
+                            container.appendChild(labelElem);
+                            container.appendChild(inputElem);
+                            container.appendChild(document.createElement("br"));
+                        }
+                    });
+                    // Agregar listeners para actualizar la previsualización avanzada
+                    addPreviewListeners();
+                })
+                .catch(err => console.error("Error al cargar preguntas:", err));
+        }
+
+        // Función para actualizar la previsualización avanzada
+        function updatePreview() {
+            const gifFilePath = document.getElementById("gifFilePath").value;
+            const escala = document.getElementById("escala").value;
+            const estilo = document.getElementById("estilo").value;
+            if (!gifFilePath) return;
+            // Mostrar la barra de progreso (si se implementa)
+            fetch("/preview", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ gifFilePath, escala, estilo })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const advPreview = document.getElementById("advancedPreview");
+                advPreview.src = data.preview;
+                advPreview.style.display = "block";
+                document.getElementById("advancedPreviewContainer").style.display = "block";
+            })
+            .catch(err => console.error("Error en la previsualización:", err));
+        }
+
+        // Agregar event listeners para actualizar la previsualización al cambiar opciones
+        function addPreviewListeners() {
+            const escalaElem = document.getElementById("escala");
+            const estiloElem = document.getElementById("estilo");
+
+            if (escalaElem) {
+                escalaElem.addEventListener("change", updatePreview);
+            }
+            if (estiloElem) {
+                estiloElem.addEventListener("change", updatePreview);
+            }
+        }
+
+        window.onload = loadQuestions;
     </script>
 </head>
 <body>
-    <h1>GIFnimator Web</h1>
+    <div class="main-container">
+        <!-- Columna Izquierda: Subida y vista original -->
+        <div class="left-column">
+            <h2>Subir GIF</h2>
+            <input type="file" id="gifFile" accept="image/gif" required onchange="uploadGIF(event)">
+            <div id="gifInfo" style="display: none;">
+                <h3>Vista Previa Original</h3>
+                <img id="gifPreview" />
+                <ul>
+                    <li><strong>Nombre:</strong> <span id="gifName"></span></li>
+                    <li><strong>Dimensiones:</strong> <span id="gifSize"></span></li>
+                    <li><strong>Frames:</strong> <span id="gifFrames"></span></li>
+                    <li><strong>Peso:</strong> <span id="gifWeight"></span></li>
+                </ul>
+            </div>
+        </div>
 
-    <label>Subir GIF: 
-        <input type="file" id="gifFile" accept="image/gif" required onchange="uploadGIF(event)">
-    </label>
-    <br><br>
-
-    <div id="gifInfo" style="display: none;">
-        <h3>Propiedades del GIF</h3>
-        <ul>
-            <li><strong>Nombre:</strong> <span id="gifName"></span></li>
-            <li><strong>Dimensiones:</strong> <span id="gifSize"></span></li>
-            <li><strong>Frames:</strong> <span id="gifFrames"></span></li>
-            <li><strong>Peso:</strong> <span id="gifWeight"></span></li>
-            <li><strong>Colores:</strong> <span id="gifColors"></span></li>
-            <li><strong>Duración Total:</strong> <span id="gifDuration"></span></li>
-        </ul>
-        <img id="gifPreview" style="max-width: 300px; display: none;" />
+        <!-- Columna Derecha: Opciones y previsualización avanzada -->
+        <div class="right-column">
+            <h2>Opciones de Edición</h2>
+            <form action="/process" method="POST" id="gifForm" style="display: none;">
+                <input type="hidden" name="gifFilePath" id="gifFilePath">
+                <div id="dynamicQuestions"></div>
+            </form>
+            <div id="advancedPreviewContainer" style="display: none;">
+                <h3>Previsualización Avanzada</h3>
+                <img id="advancedPreview">
+            </div>
+        </div>
     </div>
 
-    <form action="/process" method="POST" id="gifForm" style="display: none;">
-        <input type="hidden" name="gifFilePath" id="gifFilePath">
-
-        <label>Frames a conservar (deja vacío para no reducir):
-            <input type="number" name="framesConservar" min="1">
-        </label>
-        <br><br>
-
-        <label>Escala (%):
-            <select name="escala">
-                <option value="100">100%</option>
-                <option value="50">50%</option>
-                <option value="25">25%</option>
-                <option value="12.5">12.5%</option>
-            </select>
-        </label>
-        <br><br>
-
-        <label>Estilo:
-            <select name="estilo">
-                <option value="original">Original</option>
-                <option value="gameboy">GameBoy</option>
-                <option value="vaporwave">VaporWave</option>
-                <option value="solarpunk">SolarPunk</option>
-                <option value="steampunk">SteamPunk</option>
-                <option value="sumie">Sumi-e</option>
-                <option value="popart">Pop Art</option>
-                <option value="cyberpunk">Cyberpunk</option>
-                <option value="noir">Noir</option>
-                <option value="watercolor">Watercolor</option>
-            </select>
-        </label>
-        <br><br>
-
-        <button type="submit">Procesar</button>
-    </form>
+    <!-- Botón centrado para generar el GIF -->
+    <div class="button-container">
+        <button type="submit" form="gifForm">Generar GIF</button>
+    </div>
 </body>
 </html>

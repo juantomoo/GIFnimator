@@ -106,9 +106,9 @@ function aplicarPopArt(imageData) {
 function aplicarCyberpunk(imageData) {
     const data = imageData.data;
     for (let i = 0; i < data.length; i += 4) {
-        data[i] = Math.min(255, Math.floor(data[i] * 1.2 + 20));      // Rojo
-        data[i + 1] = Math.max(0, Math.floor(data[i + 1] * 0.8 - 10));  // Verde
-        data[i + 2] = Math.min(255, Math.floor(data[i + 2] * 1.3 + 30));  // Azul
+        data[i] = Math.min(255, Math.floor(data[i] * 1.2 + 20));
+        data[i + 1] = Math.max(0, Math.floor(data[i + 1] * 0.8 - 10));
+        data[i + 2] = Math.min(255, Math.floor(data[i + 2] * 1.3 + 30));
     }
 }
 
@@ -180,9 +180,9 @@ function aplicarInfrared(imageData) {
     const data = imageData.data;
     for (let i = 0; i < data.length; i += 4) {
         let red = data[i], green = data[i + 1], blue = data[i + 2];
-        data[i] = Math.min(255, blue + 40); // Toma parte del azul para el rojo
+        data[i] = Math.min(255, blue + 40);
         data[i + 1] = green;
-        data[i + 2] = Math.max(0, red - 30);  // Reduce el azul
+        data[i + 2] = Math.max(0, red - 30);
     }
 }
 
@@ -276,4 +276,47 @@ const estilos = {
     minimalista: aplicarMinimalista
 };
 
-module.exports = { ...estilos, preguntarEstilo };
+// Configuración de la pregunta para este módulo (para el registry)
+const preguntasEstilo = {
+    id: "estilo",
+    cli: {
+        question: "\n🎨 Opciones de estilo:",
+        options: [
+            { option: "Original", value: "original" },
+            { option: "GameBoy", value: "gameboy" },
+            { option: "VaporWave", value: "vaporwave" },
+            { option: "SolarPunk", value: "solarpunk" },
+            { option: "SteamPunk", value: "steampunk" },
+            { option: "Sumi-e", value: "sumie" },
+            { option: "Pop Art", value: "popart" },
+            { option: "Cyberpunk", value: "cyberpunk" },
+            { option: "Noir", value: "noir" },
+            { option: "Watercolor", value: "watercolor" },
+            { option: "Retro 80s", value: "retro80s" },
+            { option: "Comic Book", value: "comicbook" },
+            { option: "Infrared", value: "infrared" },
+            { option: "Embossed", value: "embossed" },
+            { option: "Glitch Art", value: "glitchart" },
+            { option: "Minimalista", value: "minimalista" }
+        ]
+    },
+    web: {
+        id: "estilo",
+        label: "Estilo",
+        type: "select",
+        options: [
+            { label: "Original", value: "original" },
+            { label: "GameBoy", value: "gameboy" },
+            { label: "VaporWave", value: "vaporwave" },
+            { label: "SolarPunk", value: "solarpunk" },
+            { label: "SteamPunk", value: "steampunk" },
+            { label: "Sumi-e", value: "sumie" },
+            { label: "Pop Art", value: "popart" },
+            { label: "Cyberpunk", value: "cyberpunk" },
+            { label: "Noir", value: "noir" },
+            { label: "Watercolor", value: "watercolor" }
+        ]
+    }
+};
+
+module.exports = { ...estilos, preguntarEstilo, preguntasEstilo };
