@@ -142,9 +142,7 @@ app.post("/process", (req, res) => {
                 <h2>GIF procesado con éxito</h2>
                 <p>Archivo generado: ${newFileName}</p>
                 <img src="/download/${newFileName}" class="gif-preview"/><br>
-                <a id="downloadLink" href="/download/${newFileName}" download="${newFileName}">
-                    <button onclick="handleDownload('${newFileName}')">Descargar GIF</button>
-                </a>
+                <button id="downloadButton">Descargar GIF</button>
                 <br><br>
                 <a href="/">Volver al inicio</a>
             </div>
@@ -152,10 +150,10 @@ app.post("/process", (req, res) => {
             <script>
                 window.archivosGenerados = ${archivosJSON};
 
-                function handleDownload(fileName) {
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = "/download/" + fileName;
-                    downloadLink.download = fileName;
+                document.getElementById("downloadButton").addEventListener("click", function () {
+                    const downloadLink = document.createElement("a");
+                    downloadLink.href = "/download/${newFileName}";
+                    downloadLink.download = "${newFileName}";
                     document.body.appendChild(downloadLink);
                     downloadLink.click();
                     document.body.removeChild(downloadLink);
@@ -176,8 +174,9 @@ app.post("/process", (req, res) => {
                         })
                         .catch(error => console.error("❌ Error en la petición de limpieza:", error));
                     }, 3000);
-                }
+                });
             </script>
+
         </body>
         </html>
     `);

@@ -1,157 +1,243 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIFnimator Web</title>
-    <link rel="stylesheet" href="styles.css">
-    <script>
-        // Función para subir el GIF
-        function uploadGIF(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GIFnimator Web por HISQUE Estudio</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // ========================================
+    // Función para subir el GIF
+    // ========================================
+    function uploadGIF(event) {
+      const file = event.target.files[0];
+      if (!file) return;
 
-            const formData = new FormData();
-            formData.append("gifFile", file);
+      const formData = new FormData();
+      formData.append("gifFile", file);
 
-            fetch("/upload", { method: "POST", body: formData })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert("Error al analizar el GIF: " + data.error);
-                        return;
-                    }
-                    document.getElementById("gifFilePath").value = data.filePath;
-                    document.getElementById("gifName").innerText = data.name;
-                    document.getElementById("gifSize").innerText = `${data.width} x ${data.height}`;
-                    document.getElementById("gifFrames").innerText = data.frames;
-                    document.getElementById("gifWeight").innerText = data.sizeKB + " KB";
-                    document.getElementById("gifPreview").src = data.preview;
-                    document.getElementById("gifPreview").style.display = "block";
-                    document.getElementById("gifInfo").style.display = "block";
-                    document.getElementById("gifForm").style.display = "block";
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    alert("Error al procesar el archivo. Inténtalo de nuevo.");
-                });
-        }
+      fetch("/upload", { method: "POST", body: formData })
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            alert("Error al analizar el GIF: " + data.error);
+            return;
+          }
+          document.getElementById("gifFilePath").value = data.filePath;
+          document.getElementById("gifName").innerText = data.name;
+          document.getElementById("gifSize").innerText = `${data.width} x ${data.height}`;
+          document.getElementById("gifFrames").innerText = data.frames;
+          document.getElementById("gifWeight").innerText = data.sizeKB + " KB";
+          document.getElementById("gifPreview").src = data.preview;
+          document.getElementById("gifPreview").style.display = "block";
+          document.getElementById("gifInfo").style.display = "block";
+          document.getElementById("gifForm").style.display = "block";
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert("Error al procesar el archivo. Inténtalo de nuevo.");
+        });
+    }
 
-        // Función para cargar dinámicamente las preguntas desde el servidor
-        function loadQuestions() {
-            fetch("/questions")
-                .then(response => response.json())
-                .then(questions => {
-                    const container = document.getElementById("dynamicQuestions");
-                    container.innerHTML = "";
-                    questions.forEach(q => {
-                        let inputElem;
-                        if (q.type === "select") {
-                            inputElem = document.createElement("select");
-                            inputElem.name = q.id;
-                            inputElem.id = q.id;
-                            q.options.forEach(opt => {
-                                const optionElem = document.createElement("option");
-                                optionElem.value = opt.value;
-                                optionElem.text = opt.label;
-                                inputElem.appendChild(optionElem);
-                            });
-                        } else if (q.type === "number") {
-                            inputElem = document.createElement("input");
-                            inputElem.type = "number";
-                            inputElem.name = q.id;
-                            inputElem.id = q.id;
-                            if (q.min) inputElem.min = q.min;
-                            if (q.default) inputElem.value = q.default;
-                        }
-                        if (inputElem) {
-                            const labelElem = document.createElement("label");
-                            labelElem.innerText = q.label + ":";
-                            labelElem.htmlFor = inputElem.id;
-                            container.appendChild(labelElem);
-                            container.appendChild(inputElem);
-                            container.appendChild(document.createElement("br"));
-                        }
-                    });
-                    // Agregar listeners para actualizar la previsualización avanzada
-                    addPreviewListeners();
-                })
-                .catch(err => console.error("Error al cargar preguntas:", err));
-        }
-
-        // Función para actualizar la previsualización avanzada
-        function updatePreview() {
-            const gifFilePath = document.getElementById("gifFilePath").value;
-            const escala = document.getElementById("escala").value;
-            const estilo = document.getElementById("estilo").value;
-            if (!gifFilePath) return;
-            // Mostrar la barra de progreso (si se implementa)
-            fetch("/preview", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ gifFilePath, escala, estilo })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const advPreview = document.getElementById("advancedPreview");
-                advPreview.src = data.preview;
-                advPreview.style.display = "block";
-                document.getElementById("advancedPreviewContainer").style.display = "block";
-            })
-            .catch(err => console.error("Error en la previsualización:", err));
-        }
-
-        // Agregar event listeners para actualizar la previsualización al cambiar opciones
-        function addPreviewListeners() {
-            const escalaElem = document.getElementById("escala");
-            const estiloElem = document.getElementById("estilo");
-
-            if (escalaElem) {
-                escalaElem.addEventListener("change", updatePreview);
+    // ========================================
+    // Función para cargar dinámicamente preguntas
+    // ========================================
+    function loadQuestions() {
+      fetch("/questions")
+        .then(response => response.json())
+        .then(questions => {
+          const container = document.getElementById("dynamicQuestions");
+          container.innerHTML = "";
+          questions.forEach(q => {
+            let inputElem;
+            if (q.type === "select") {
+              inputElem = document.createElement("select");
+              inputElem.name = q.id;
+              inputElem.id = q.id;
+              q.options.forEach(opt => {
+                const optionElem = document.createElement("option");
+                optionElem.value = opt.value;
+                optionElem.text = opt.label;
+                inputElem.appendChild(optionElem);
+              });
+            } else if (q.type === "number") {
+              inputElem = document.createElement("input");
+              inputElem.type = "number";
+              inputElem.name = q.id;
+              inputElem.id = q.id;
+              if (q.min) inputElem.min = q.min;
+              if (q.default) inputElem.value = q.default;
             }
-            if (estiloElem) {
-                estiloElem.addEventListener("change", updatePreview);
+            if (inputElem) {
+              const labelElem = document.createElement("label");
+              labelElem.innerText = q.label + ":";
+              labelElem.htmlFor = inputElem.id;
+              container.appendChild(labelElem);
+              container.appendChild(inputElem);
+              container.appendChild(document.createElement("br"));
             }
-        }
+          });
+          addPreviewListeners();
+        })
+        .catch(err => console.error("Error al cargar preguntas:", err));
+    }
 
-        window.onload = loadQuestions;
-    </script>
+    // ========================================
+    // Previsualización avanzada con barra de progreso
+    // ========================================
+    function updatePreview() {
+      const gifFilePath = document.getElementById("gifFilePath").value;
+      const escala = document.getElementById("escala")?.value;
+      const estilo = document.getElementById("estilo")?.value;
+      if (!gifFilePath) return;
+
+      // Mostrar barra de progreso
+      document.getElementById("previewProgressContainer").style.display = "block";
+      document.getElementById("previewProgressBar").value = 0;
+      document.getElementById("progressPercentage").innerText = "0%";
+      document.getElementById("estimatedTime").innerText = "Calculando...";
+
+      let progress = 0;
+      let estimatedTime = 5; // Estimación inicial en segundos
+      const progressInterval = setInterval(() => {
+        if (progress < 95) {
+          progress += 5;
+          estimatedTime = Math.max(1, estimatedTime - 0.3);
+          document.getElementById("previewProgressBar").value = progress;
+          document.getElementById("progressPercentage").innerText = `${progress}%`;
+          document.getElementById("estimatedTime").innerText = `${Math.ceil(estimatedTime)}s restantes`;
+        }
+      }, 300);
+
+      fetch("/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gifFilePath, escala, estilo })
+      })
+      .then(response => response.json())
+      .then(data => {
+        clearInterval(progressInterval);
+        document.getElementById("previewProgressBar").value = 100;
+        document.getElementById("progressPercentage").innerText = "100%";
+        document.getElementById("estimatedTime").innerText = "Completado";
+
+        setTimeout(() => {
+          document.getElementById("previewProgressContainer").style.display = "none";
+          document.getElementById("advancedPreview").src = data.preview;
+          document.getElementById("advancedPreview").style.display = "block";
+          document.getElementById("advancedPreviewContainer").style.display = "block";
+        }, 500);
+      })
+      .catch(err => {
+        clearInterval(progressInterval);
+        document.getElementById("previewProgressContainer").style.display = "none";
+        console.error("Error en la previsualización:", err);
+      });
+    }
+
+    // ========================================
+    // Listeners de cambios
+    // ========================================
+    function addPreviewListeners() {
+      const escalaElem = document.getElementById("escala");
+      const estiloElem = document.getElementById("estilo");
+      if (escalaElem) escalaElem.addEventListener("change", updatePreview);
+      if (estiloElem) estiloElem.addEventListener("change", updatePreview);
+    }
+
+    // ========================================
+    // Detectar ruta y ajustar interfaz
+    // ========================================
+    document.addEventListener("DOMContentLoaded", () => {
+      const path = window.location.pathname;
+      // Cargar preguntas siempre, por si la pantalla principal las requiere
+      loadQuestions();
+
+      const bottomBtn = document.getElementById("bottomButton");
+      const bottomIcon = document.getElementById("bottomIcon");
+      const bottomText = document.getElementById("bottomText");
+
+      if (path.includes("/process")) {
+        // Estamos en /process -> Cambia el texto del botón a "Descargar GIF"
+        bottomIcon.textContent = "⬇";
+        bottomText.textContent = "Descargar GIF";
+
+        // Opcional: oculta el main-container si no quieres mostrar la UI original
+        // document.querySelector(".main-container").style.display = "none";
+        
+        // Lógica del botón: descargar o redirigir
+        bottomBtn.onclick = () => {
+          window.location.href = "/download";
+        };
+      } else {
+        // Pantalla principal -> "Generar GIF"
+        bottomIcon.textContent = "▶";
+        bottomText.textContent = "Generar GIF";
+        // Lógica del botón: enviar formulario
+        bottomBtn.onclick = () => {
+          document.getElementById("gifForm").submit();
+        };
+      }
+    });
+  </script>
 </head>
 <body>
-    <div class="main-container">
-        <!-- Columna Izquierda: Subida y vista original -->
-        <div class="left-column">
-            <h2>Subir GIF</h2>
-            <input type="file" id="gifFile" accept="image/gif" required onchange="uploadGIF(event)">
-            <div id="gifInfo" style="display: none;">
-                <h3>Vista Previa Original</h3>
-                <img id="gifPreview" />
-                <ul>
-                    <li><strong>Nombre:</strong> <span id="gifName"></span></li>
-                    <li><strong>Dimensiones:</strong> <span id="gifSize"></span></li>
-                    <li><strong>Frames:</strong> <span id="gifFrames"></span></li>
-                    <li><strong>Peso:</strong> <span id="gifWeight"></span></li>
-                </ul>
-            </div>
-        </div>
+  <!-- Barra superior -->
+  <header class="top-bar">
+    <div class="logo-container">
+      <img
+        src="https://i0.wp.com/hisque.com.co/wp-content/uploads/2020/09/hisque-estudio%400.5x.png?fit=172%2C93&ssl=1"
+        alt="HISQUE Logo"
+        class="logo"
+      />
+      <span class="suite-title">GIFnimator</span>
+    </div>
+    <button class="back-button" onclick="window.location.href='https://hisque.com.co'">
+      Regresar a HISQUE Estudio
+    </button>
+  </header>
 
-        <!-- Columna Derecha: Opciones y previsualización avanzada -->
-        <div class="right-column">
-            <h2>Opciones de Edición</h2>
-            <form action="/process" method="POST" id="gifForm" style="display: none;">
-                <input type="hidden" name="gifFilePath" id="gifFilePath">
-                <div id="dynamicQuestions"></div>
-            </form>
-            <div id="advancedPreviewContainer" style="display: none;">
-                <h3>Previsualización Avanzada</h3>
-                <img id="advancedPreview">
-            </div>
-        </div>
+  <!-- Contenido principal -->
+  <div class="main-container">
+    <div class="left-column">
+      <h2>Subir GIF</h2>
+      <input type="file" id="gifFile" accept="image/gif" required onchange="uploadGIF(event)">
+      <div id="gifInfo" style="display: none;">
+        <h3>Vista Previa Original</h3>
+        <img id="gifPreview" />
+        <ul>
+          <li><strong>Nombre:</strong> <span id="gifName"></span></li>
+          <li><strong>Dimensiones:</strong> <span id="gifSize"></span></li>
+          <li><strong>Frames:</strong> <span id="gifFrames"></span></li>
+          <li><strong>Peso:</strong> <span id="gifWeight"></span></li>
+        </ul>
+      </div>
     </div>
 
-    <!-- Botón centrado para generar el GIF -->
-    <div class="button-container">
-        <button type="submit" form="gifForm">Generar GIF</button>
+    <div class="right-column">
+      <h2>Opciones de Edición</h2>
+      <form action="/process" method="POST" id="gifForm" style="display: none;">
+        <input type="hidden" name="gifFilePath" id="gifFilePath">
+        <div id="dynamicQuestions"></div>
+      </form>
+      <div id="previewProgressContainer" style="display: none;">
+        <p>Generando previsualización...</p>
+        <progress id="previewProgressBar" value="0" max="100"></progress>
+        <p id="progressPercentage">0%</p>
+        <p id="estimatedTime">Calculando...</p>
+      </div>
+      <div id="advancedPreviewContainer" style="display: none;">
+        <h3>Previsualización Avanzada</h3>
+        <img id="advancedPreview">
+      </div>
     </div>
+  </div>
+
+  <!-- Barra inferior -->
+  <footer class="bottom-bar">
+    <button id="bottomButton" class="bottom-btn">
+      <span id="bottomIcon">▶</span> <span id="bottomText">Generar GIF</span>
+    </button>
+  </footer>
 </body>
 </html>

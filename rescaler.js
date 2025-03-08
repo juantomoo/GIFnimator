@@ -116,7 +116,7 @@ const preguntasRescaler = {
     },
     web: {
         id: "escala",
-        label: "Escala (%)",
+        label: "Pixelizar (escalado porcentual)",
         type: "select",
         options: [
             { label: "100%", value: 100 },
