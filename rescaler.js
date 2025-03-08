@@ -1,3 +1,4 @@
+// rescaler.js
 const fs = require("fs");
 const { createCanvas } = require("canvas");
 const GIFEncoder = require("gif-encoder-2");
@@ -71,15 +72,14 @@ function processGIF(fileName, escalaObj, applyStyle = null, elecciones = []) {
 
         encoder.finish();
 
-        // Construir el nombre de salida siguiendo el formato:
-        // NombreOriginal-Eleccion1-Eleccion2-...-EleccionN.gif
+        // En lugar de guardar en disco, retornamos el buffer y el nombre sugerido.
+        const outputBuffer = encoder.out.getData();
         const baseName = path.parse(fileName).name;
-        const outputFileName = `${baseName}-${elecciones.join("-")}.gif`;
-
-        fs.writeFileSync(outputFileName, encoder.out.getData());
-        console.log(`✅ GIF generado exitosamente: ${outputFileName}`);
+        const suggestedName = `${baseName}-${elecciones.join("-")}.gif`;
+        return { buffer: outputBuffer, suggestedName };
     } catch (error) {
         console.error("❌ Error al procesar el GIF:", error);
+        return null;
     }
 }
 
@@ -92,7 +92,6 @@ function preguntarEscalado() {
     console.log("3. 25% (Aún más pixelado)");
     console.log("4. 12.5% (Extremadamente pixelado)");
 
-    // Cada opción retorna un objeto con factor y etiqueta
     const opciones = [
         { factor: 1, label: "100" },
         { factor: 0.5, label: "50" },
